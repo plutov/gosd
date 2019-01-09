@@ -30,7 +30,11 @@ import "github.com/plutov/gosd"
 
 func main() {
     // This goroutine will send stats on your behalf
-    go gosd.Run("PROJECT_ID", os.Stdout)
+    go gosd.Run(gosd.Config{
+		ProjectID: "PROJECT_ID",
+		Logger:    os.Stdout,
+		Labels:    map[string]string{"app": "my-web-app"},
+	})
 }
 ```
 

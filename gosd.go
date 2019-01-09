@@ -42,15 +42,22 @@ var metrics = map[string]func() *monitoringpb.Point{
 
 var rtm runtime.MemStats
 
+// Config type
+type Config struct {
+	ProjectID string
+	Logger    io.Writer
+	Labels    map[string]string
+}
+
 // Run starts a goroutine which will automatically send Go runtime stats to stackdriver.
-// projectID is your Google Cloud Platform project ID.
-func Run(projectID string, logger io.Writer) {
+// config.ProjectID is only one mandatory value in config
+func Run(config Config) {
 	ctx := context.Background()
 
 	// Creates a client
 	client, err := monitoring.NewMetricClient(ctx)
 	if err != nil {
-		fmt.Fprintf(logger, "unable to create monitoring client: %s", err.Error())
+		fmt.Fprintf(config.Logger, "unable to create monitoring client: %s", err.Error())
 		return
 	}
 
@@ -62,7 +69,8 @@ func Run(projectID string, logger io.Writer) {
 		for name, f := range metrics {
 			timeSeries = append(timeSeries, &monitoringpb.TimeSeries{
 				Metric: &metricpb.Metric{
-					Type: name,
+					Type:   name,
+					Labels: config.Labels,
 				},
 				Resource: &monitoredrespb.MonitoredResource{
 					Type: "global",
@@ -74,10 +82,10 @@ func Run(projectID string, logger io.Writer) {
 		}
 		// write all metrics at once
 		if err := client.CreateTimeSeries(ctx, &monitoringpb.CreateTimeSeriesRequest{
-			Name:       monitoring.MetricProjectPath(projectID),
+			Name:       monitoring.MetricProjectPath(config.ProjectID),
 			TimeSeries: timeSeries,
 		}); err != nil {
-			fmt.Fprintf(logger, "unable to write time series data: %s", err.Error())
+			fmt.Fprintf(config.Logger, "unable to write time series data: %s", err.Error())
 		}
 	}
 }
