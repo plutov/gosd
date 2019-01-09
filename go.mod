@@ -1,4 +1,4 @@
-module github.com/24metrics/gosd
+module github.com/plutov/gosd
 
 require (
 	cloud.google.com/go v0.34.0
