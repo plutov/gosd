@@ -29,7 +29,7 @@ Note: you may skip this step if you are running your Go application on GCP and i
 import "github.com/plutov/gosd"
 
 func main() {
-    // This goroutine will send stats on your behalf
+	// This goroutine will send stats on your behalf
 	go gosd.Run(gosd.Config{
 		ProjectID: "PROJECT_ID",
 		Logger:    os.Stdout,
